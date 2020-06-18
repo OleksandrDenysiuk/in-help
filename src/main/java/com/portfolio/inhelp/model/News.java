@@ -36,4 +36,24 @@ public class News {
                 cascade = CascadeType.ALL
     )
     private Set<Comment> comments = new HashSet<>();
+
+    public void addImage(Image image){
+        images.add(image);
+        image.setNews(this);
+    }
+
+    public void removeImage(Image image){
+        images.remove(image);
+        image.setNews(null);
+    }
+
+    public void addComment(Comment comment){
+        comments.add(comment);
+        comment.setNews(this);
+    }
+
+    public void removeComment(Comment comment){
+        comments.remove(comment);
+        comment.setNews(null);
+    }
 }
