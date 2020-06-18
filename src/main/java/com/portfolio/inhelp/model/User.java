@@ -5,14 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "user")
+@Table(name = "user")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String username;
@@ -31,7 +37,13 @@ public class User {
 
     private String role;
 
-    private Set<Accident> accidents;
+    @OneToMany(mappedBy = "user",
+                cascade = CascadeType.ALL
+    )
+    private Set<Accident> accidents = new HashSet<>();
 
-    private Set<Comment> comments;
+    @OneToMany(mappedBy = "user",
+                cascade = CascadeType.ALL
+    )
+    private Set<Comment> comments = new HashSet<>();
 }
