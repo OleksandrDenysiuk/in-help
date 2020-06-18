@@ -46,4 +46,24 @@ public class User {
                 cascade = CascadeType.ALL
     )
     private Set<Comment> comments = new HashSet<>();
+
+    public void addAccident(Accident accident){
+        accidents.add(accident);
+        accident.setUser(this);
+    }
+
+    public void removeAccident(Accident accident){
+        accidents.remove(accident);
+        accident.setUser(null);
+    }
+
+    public void addComment(Comment comment){
+        comments.add(comment);
+        comment.setUser(this);
+    }
+
+    public void removeComment(Comment comment){
+        comments.remove(comment);
+        comment.setUser(null);
+    }
 }
