@@ -57,7 +57,7 @@ class UserTest {
 
         user.removeComment(commentToRemove);
 
-        assertEquals(0, user.getComments().size());
+        assertNotEquals(1, user.getComments().size());
         assertThrows(NoSuchElementException.class, () -> {
             user.getComments().stream().filter(comment -> comment.getId().equals(1L)).findFirst().get();
         });
