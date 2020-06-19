@@ -39,6 +39,10 @@ public class Accident {
     )
     private Set<User> helpers = new HashSet<>();
 
+    @OneToMany(mappedBy = "accident",
+            cascade = CascadeType.ALL)
+    private Set<Comment> comments = new HashSet<>();
+
     public void addImage(Image image){
         images.add(image);
         image.setAccident(this);
