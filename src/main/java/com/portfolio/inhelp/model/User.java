@@ -40,7 +40,7 @@ public class User {
     )
     private Set<Accident> accidents = new HashSet<>();
 
-    @OneToMany(mappedBy = "user",
+    @OneToMany(mappedBy = "author",
                 cascade = CascadeType.ALL
     )
     private Set<Comment> comments = new HashSet<>();
@@ -57,12 +57,12 @@ public class User {
 
     public void addComment(Comment comment){
         comments.add(comment);
-        comment.setUser(this);
+        comment.setAuthor(this);
     }
 
     public void removeComment(Comment comment){
         comments.remove(comment);
-        comment.setUser(null);
+        comment.setAuthor(null);
     }
 
     @Override
