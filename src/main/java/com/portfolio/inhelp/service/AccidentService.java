@@ -10,7 +10,7 @@ public interface AccidentService {
     AccidentDto getOneByUserId(Long accidentId, Long userId);
     List<AccidentDto> getAll();
     List<AccidentDto> getAllByUserId(Long userId);
-    AccidentDto create(AccidentCommand accidentCommand);
+    AccidentDto create(AccidentCommand accidentCommand, Long userId);
     AccidentDto update(AccidentCommand accidentCommand, Long userId);
     void delete(Long accidentId, Long userId);
 }

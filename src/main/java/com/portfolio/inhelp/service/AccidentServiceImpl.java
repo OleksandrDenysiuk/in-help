@@ -4,7 +4,9 @@ import com.portfolio.inhelp.command.AccidentCommand;
 import com.portfolio.inhelp.dto.AccidentDto;
 import com.portfolio.inhelp.mapper.AccidentMapper;
 import com.portfolio.inhelp.model.Accident;
+import com.portfolio.inhelp.model.User;
 import com.portfolio.inhelp.repository.AccidentRepository;
+import com.portfolio.inhelp.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +15,11 @@ import java.util.stream.Collectors;
 public class AccidentServiceImpl implements AccidentService {
 
     private final AccidentRepository accidentRepository;
+    private final UserRepository userRepository;
 
-    public AccidentServiceImpl(AccidentRepository accidentRepository) {
+    public AccidentServiceImpl(AccidentRepository accidentRepository, UserRepository userRepository) {
         this.accidentRepository = accidentRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -56,12 +60,18 @@ public class AccidentServiceImpl implements AccidentService {
     }
 
     @Override
-    public AccidentDto create(AccidentCommand accidentCommand) {
-        Accident accident = Accident.builder()
-                .title(accidentCommand.getTitle())
-                .content(accidentCommand.getContent())
-                .build();
-        return AccidentMapper.INSTANCE.toDto(accidentRepository.save(accident));
+    public AccidentDto create(AccidentCommand accidentCommand, Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()){
+            Accident accident = Accident.builder()
+                    .title(accidentCommand.getTitle())
+                    .content(accidentCommand.getContent())
+                    .build();
+            optionalUser.get().addAccident(accident);
+            return AccidentMapper.INSTANCE.toDto(accidentRepository.save(accident));
+        }else {
+            throw new RuntimeException("User not found");
+        }
     }
 
     @Override
@@ -82,7 +92,7 @@ public class AccidentServiceImpl implements AccidentService {
     public void delete(Long accidentId, Long userId) {
         Accident accident = accidentRepository.findByIdAndUserId(accidentId,userId);
         if (accident != null) {
-            accidentRepository.delete(accident);
+            accidentRepository.deleteById(accidentId);
         } else {
             throw new RuntimeException("Accident not found");
         }
