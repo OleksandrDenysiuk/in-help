@@ -28,4 +28,19 @@ public class Image {
     @ManyToOne
     @JoinColumn(name = "news_id")
     private News news;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Image image = (Image) o;
+
+        return id != null ? id.equals(image.id) : image.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -32,7 +32,7 @@ class UserTest {
 
         user.addAccident(accidentToRemove);
 
-        user.removeAccident(accidentToRemove);
+        user.removeAccident(Accident.builder().id(1L).build());
 
         assertEquals(0, user.getAccidents().size());
         assertThrows(NoSuchElementException.class, () -> {
@@ -55,7 +55,7 @@ class UserTest {
 
         user.addComment(commentToRemove);
 
-        user.removeComment(commentToRemove);
+        user.removeComment(Comment.builder().id(1L).build());
 
         assertNotEquals(1, user.getComments().size());
         assertThrows(NoSuchElementException.class, () -> {

@@ -30,7 +30,7 @@ class NewsTest {
         Image imageToRemove = Image.builder().id(1L).build();
         news.addImage(imageToRemove);
 
-        news.removeImage(imageToRemove);
+        news.removeImage(Image.builder().id(1L).build());
 
         assertNotEquals(1, news.getImages().size());
         assertThrows(NoSuchElementException.class, () -> {
@@ -53,7 +53,7 @@ class NewsTest {
 
         news.addComment(commentToRemove);
 
-        news.removeComment(commentToRemove);
+        news.removeComment(Comment.builder().id(1L).build());
 
         assertNotEquals(1, news.getComments().size());
         assertThrows(NoSuchElementException.class, () -> {

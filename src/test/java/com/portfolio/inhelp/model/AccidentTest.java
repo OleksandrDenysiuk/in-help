@@ -30,7 +30,7 @@ class AccidentTest {
         Image imageToRemove = Image.builder().id(1L).build();
         accident.addImage(imageToRemove);
 
-        accident.removeImage(imageToRemove);
+        accident.removeImage(Image.builder().id(1L).build());
 
         assertNotEquals(1, accident.getImages().size());
         assertThrows(NoSuchElementException.class, () -> {
@@ -54,7 +54,7 @@ class AccidentTest {
 
         accident.addHelper(helperToRemove);
 
-        accident.removeHelper(helperToRemove);
+        accident.removeHelper(User.builder().id(1L).accidents(new HashSet<>()).build());
 
         assertNotEquals(1, accident.getHelpers().size());
         assertThrows(NoSuchElementException.class, () -> {
