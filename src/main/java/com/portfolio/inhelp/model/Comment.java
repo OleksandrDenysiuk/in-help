@@ -20,8 +20,8 @@ public class Comment {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "author_id")
+    private User author;
 
     @ManyToOne
     @JoinColumn(name = "accident_id")
