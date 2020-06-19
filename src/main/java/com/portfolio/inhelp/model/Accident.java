@@ -43,6 +43,11 @@ public class Accident {
             cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<>();
 
+    @OneToMany(mappedBy = "accident",
+        cascade = CascadeType.ALL
+    )
+    private Set<News> news = new HashSet<>();
+
     public void addImage(Image image){
         images.add(image);
         image.setAccident(this);
@@ -61,6 +66,16 @@ public class Accident {
     public void removeHelper(User helper){
         helpers.remove(helper);
         helper.removeAccident(this);
+    }
+
+    public void addComment(Comment comment){
+        comments.add(comment);
+        comment.setAccident(this);
+    }
+
+    public void removeComment(Comment comment){
+        comments.remove(comment);
+        comment.setAccident(null);
     }
 
     @Override
