@@ -1,13 +1,15 @@
 package com.portfolio.inhelp.service;
 
+import com.portfolio.inhelp.command.ImageCommand;
 import com.portfolio.inhelp.dto.ImageDto;
 
-import java.util.Set;
+import java.util.List;
 
 public interface ImageService {
-    ImageDto getOne(Long imageId);
-    Set<ImageDto> getAll();
-    ImageDto create(ImageDto accidentCommand);
-    ImageDto update(ImageDto accidentCommand);
-    void delete(Long imageId);
+    List<ImageDto> getAllByAccidentId(Long accidentId);
+    List<ImageDto> getAllByNewsId(Long newsIs);
+    ImageDto create(ImageCommand imageCommand, Long accidentId, Long authorId);
+    ImageDto create(ImageCommand imageCommand, Long accidentId, Long newsId, Long authorId);
+    void delete(Long imageId, Long accidentId, Long authorId);
+    void delete(Long imageId, Long accidentId, Long newsId, Long authorId);
 }
