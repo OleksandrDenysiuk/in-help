@@ -61,15 +61,14 @@ public class CommentServiceImpl implements CommentService {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Optional<Accident> optionalAccident = user.getAccidents().stream()
-                    .filter(accident -> accident.getId().equals(accidentId))
-                    .findFirst();
+            Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Comment comment = Comment.builder()
                         .content(commentCommand.getContent())
                         .build();
                 accident.addComment(comment);
+                user.addComment(comment);
                 return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
             } else {
                 throw new RuntimeException("Accident not found");
@@ -84,9 +83,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Optional<Accident> optionalAccident = user.getAccidents().stream()
-                    .filter(accident -> accident.getId().equals(accidentId))
-                    .findFirst();
+            Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Optional<News> optionalNews = accident.getNews().stream()
@@ -98,6 +95,7 @@ public class CommentServiceImpl implements CommentService {
                             .build();
                     News news = optionalNews.get();
                     news.addComment(comment);
+                    user.addComment(comment);
                     return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
                 } else {
                     throw new RuntimeException("News not found");
@@ -115,9 +113,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Optional<Accident> optionalAccident = user.getAccidents().stream()
-                    .filter(accident -> accident.getId().equals(accidentId))
-                    .findFirst();
+            Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Optional<Comment> optionalComment = accident.getComments().stream()
@@ -125,8 +121,12 @@ public class CommentServiceImpl implements CommentService {
                         .findFirst();
                 if (optionalComment.isPresent()) {
                     Comment comment = optionalComment.get();
-                    comment.setContent(commentCommand.getContent());
-                    return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
+                    if (comment.isAuthor(user)) {
+                        comment.setContent(commentCommand.getContent());
+                        return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
+                    } else {
+                        throw new RuntimeException("User not author");
+                    }
                 } else {
                     throw new RuntimeException("Comment not found");
                 }
@@ -143,9 +143,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Optional<Accident> optionalAccident = user.getAccidents().stream()
-                    .filter(accident -> accident.getId().equals(accidentId))
-                    .findFirst();
+            Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Optional<News> optionalNews = accident.getNews().stream()
@@ -158,8 +156,12 @@ public class CommentServiceImpl implements CommentService {
                             .findFirst();
                     if (optionalComment.isPresent()) {
                         Comment comment = optionalComment.get();
-                        comment.setContent(commentCommand.getContent());
-                        return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
+                        if (comment.isAuthor(user)) {
+                            comment.setContent(commentCommand.getContent());
+                            return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
+                        } else {
+                            throw new RuntimeException("User not author");
+                        }
                     } else {
                         throw new RuntimeException("Comment not found");
                     }
@@ -180,16 +182,21 @@ public class CommentServiceImpl implements CommentService {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Optional<Accident> optionalAccident = user.getAccidents().stream()
-                    .filter(accident -> accident.getId().equals(accidentId))
-                    .findFirst();
+            Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Optional<Comment> optionalComment = accident.getComments().stream()
                         .filter(comment -> comment.getId().equals(commentId))
                         .findFirst();
                 if (optionalComment.isPresent()) {
-                    commentRepository.delete(optionalComment.get());
+                    Comment comment = optionalComment.get();
+                    if(comment.isAuthor(user)){
+                        user.removeComment(comment);
+                        accident.removeComment(comment);
+                        commentRepository.delete(optionalComment.get());
+                    }else {
+                        throw new RuntimeException("User not author");
+                    }
                 } else {
                     throw new RuntimeException("Comment not found");
                 }
@@ -206,9 +213,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Optional<Accident> optionalAccident = user.getAccidents().stream()
-                    .filter(accident -> accident.getId().equals(accidentId))
-                    .findFirst();
+            Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Optional<News> optionalNews = accident.getNews().stream()
@@ -220,7 +225,14 @@ public class CommentServiceImpl implements CommentService {
                             .filter(comment -> comment.getId().equals(commentId))
                             .findFirst();
                     if (optionalComment.isPresent()) {
-                        commentRepository.delete(optionalComment.get());
+                        Comment comment = optionalComment.get();
+                        if(comment.isAuthor(user)){
+                            user.removeComment(comment);
+                            news.removeComment(comment);
+                            commentRepository.delete(optionalComment.get());
+                        }else {
+                            throw new RuntimeException("User not author");
+                        }
                     } else {
                         throw new RuntimeException("Comment not found");
                     }
