@@ -78,6 +78,16 @@ public class Accident {
         comment.setAccident(null);
     }
 
+    public void addNews(News news){
+        this.news.add(news);
+        news.setAccident(this);
+    }
+
+    public void removeNews(News news){
+        this.news.remove(news);
+        news.setAccident(null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
