@@ -31,6 +31,10 @@ public class Comment {
     @JoinColumn(name = "news_id")
     private News news;
 
+    public boolean isAuthor(User user){
+        return author.equals(user);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
