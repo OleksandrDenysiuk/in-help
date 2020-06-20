@@ -1,5 +1,6 @@
 package com.portfolio.inhelp.service;
 
+import com.portfolio.inhelp.command.NewsCommand;
 import com.portfolio.inhelp.dto.NewsDto;
 import com.portfolio.inhelp.mapper.NewsMapper;
 import com.portfolio.inhelp.model.Accident;
@@ -55,7 +56,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public NewsDto create(NewsDto accidentCommand, Long accidentId, Long userId) {
+    public NewsDto create(NewsCommand newsCommand, Long accidentId, Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -64,8 +65,8 @@ public class NewsServiceImpl implements NewsService {
                     .findFirst();
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
-                News news = News.builder().title(accidentCommand.getTitle())
-                        .content(accidentCommand.getContent()).build();
+                News news = News.builder().title(newsCommand.getTitle())
+                        .content(newsCommand.getContent()).build();
                 accident.addNews(news);
                 return NewsMapper.INSTANCE.toDto(newsRepository.save(news));
             } else {
@@ -77,7 +78,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public NewsDto update(NewsDto accidentCommand, Long accidentId, Long userId) {
+    public NewsDto update(NewsCommand newsCommand, Long accidentId, Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -87,12 +88,12 @@ public class NewsServiceImpl implements NewsService {
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
                 Optional<News> optionalNews = accident.getNews().stream()
-                        .filter(news -> news.getId().equals(accidentCommand.getId()))
+                        .filter(news -> news.getId().equals(newsCommand.getId()))
                         .findFirst();
                 if (optionalNews.isPresent()) {
                     News news = optionalNews.get();
-                    news.setTitle(accidentCommand.getTitle());
-                    news.setContent(accidentCommand.getContent());
+                    news.setTitle(newsCommand.getTitle());
+                    news.setContent(newsCommand.getContent());
                     return NewsMapper.INSTANCE.toDto(newsRepository.save(news));
                 } else {
                     throw new RuntimeException("News not found");
