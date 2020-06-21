@@ -9,11 +9,13 @@ import com.portfolio.inhelp.model.User;
 import com.portfolio.inhelp.repository.AccidentRepository;
 import com.portfolio.inhelp.repository.NewsRepository;
 import com.portfolio.inhelp.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class NewsServiceImpl implements NewsService {
     private final NewsRepository newsRepository;
     private final AccidentRepository accidentRepository;

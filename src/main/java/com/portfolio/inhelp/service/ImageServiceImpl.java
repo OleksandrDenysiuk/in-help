@@ -11,11 +11,13 @@ import com.portfolio.inhelp.repository.AccidentRepository;
 import com.portfolio.inhelp.repository.ImageRepository;
 import com.portfolio.inhelp.repository.NewsRepository;
 import com.portfolio.inhelp.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class ImageServiceImpl implements ImageService {
     private final AccidentRepository accidentRepository;
     private final NewsRepository newsRepository;

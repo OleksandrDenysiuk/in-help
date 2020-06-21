@@ -7,11 +7,13 @@ import com.portfolio.inhelp.model.Accident;
 import com.portfolio.inhelp.model.User;
 import com.portfolio.inhelp.repository.AccidentRepository;
 import com.portfolio.inhelp.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class AccidentServiceImpl implements AccidentService {
 
     private final AccidentRepository accidentRepository;

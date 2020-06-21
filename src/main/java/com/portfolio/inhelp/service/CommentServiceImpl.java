@@ -11,11 +11,13 @@ import com.portfolio.inhelp.repository.AccidentRepository;
 import com.portfolio.inhelp.repository.CommentRepository;
 import com.portfolio.inhelp.repository.NewsRepository;
 import com.portfolio.inhelp.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class CommentServiceImpl implements CommentService {
 
     private final UserRepository userRepository;
