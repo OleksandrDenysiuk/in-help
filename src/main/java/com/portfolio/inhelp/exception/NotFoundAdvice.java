@@ -29,4 +29,18 @@ public class NotFoundAdvice {
     public String commentNotFoundHandler(CommentNotFoundException e){
         return e.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(ImageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String imageNotFoundHandler(ImageNotFoundException e){
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(NewsNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String newsNotFoundHandler(NewsNotFoundException e){
+        return e.getMessage();
+    }
 }
