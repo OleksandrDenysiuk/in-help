@@ -2,6 +2,8 @@ package com.portfolio.inhelp.service;
 
 import com.portfolio.inhelp.command.AccidentCommand;
 import com.portfolio.inhelp.dto.AccidentDto;
+import com.portfolio.inhelp.exception.AccidentNotFoundException;
+import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.AccidentMapper;
 import com.portfolio.inhelp.model.Accident;
 import com.portfolio.inhelp.model.User;
@@ -26,25 +28,24 @@ public class AccidentServiceImpl implements AccidentService {
 
     @Override
     public AccidentDto getOne(Long accidentId) {
-        Optional<Accident> optionalAccident = accidentRepository.findById(accidentId);
-        if (optionalAccident.isPresent()) {
-            return AccidentMapper.INSTANCE.toDto(optionalAccident.get());
-        } else {
-            throw new RuntimeException("Accident not Found");
-        }
+        return accidentRepository.findById(accidentId)
+                .map(AccidentMapper.INSTANCE::toDto)
+                .orElseThrow(() -> new AccidentNotFoundException(accidentId));
     }
 
     @Override
     public AccidentDto getOneByUserId(Long accidentId, Long userId) {
-
-        Accident accident = accidentRepository.findByIdAndUserId(accidentId, userId);
-
-        if (accident != null) {
-            return AccidentMapper.INSTANCE.toDto(accident);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return user.getAccidents().stream()
+                    .filter(accident -> accident.getId().equals(accidentId))
+                    .findFirst()
+                    .map(AccidentMapper.INSTANCE::toDto)
+                    .orElseThrow(() -> new AccidentNotFoundException(accidentId));
         } else {
-            throw new RuntimeException("Accident not Found");
+            throw new UserNotFoundException(userId);
         }
-
     }
 
     @Override
@@ -64,39 +65,55 @@ public class AccidentServiceImpl implements AccidentService {
     @Override
     public AccidentDto create(AccidentCommand accidentCommand, Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             Accident accident = Accident.builder()
                     .title(accidentCommand.getTitle())
                     .content(accidentCommand.getContent())
                     .build();
             optionalUser.get().addAccident(accident);
             return AccidentMapper.INSTANCE.toDto(accidentRepository.save(accident));
-        }else {
+        } else {
             throw new RuntimeException("User not found");
         }
     }
 
     @Override
     public AccidentDto update(AccidentCommand accidentCommand, Long userId) {
-        Accident accident = accidentRepository.findByIdAndUserId(accidentCommand.getId(), userId);
-
-        if (accident != null) {
-            accident.setTitle(accidentCommand.getTitle());
-            accident.setContent(accidentCommand.getContent());
-            return AccidentMapper.INSTANCE.toDto(accidentRepository.save(accident));
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            Optional<Accident> optionalAccident = optionalUser.get()
+                    .getAccidents().stream()
+                    .filter(accident -> accident.getId().equals(accidentCommand.getId()))
+                    .findFirst();
+            if (optionalAccident.isPresent()) {
+                Accident accident = optionalAccident.get();
+                accident.setTitle(accidentCommand.getTitle());
+                accident.setContent(accidentCommand.getContent());
+                return AccidentMapper.INSTANCE.toDto(accidentRepository.save(accident));
+            } else {
+                throw new AccidentNotFoundException(accidentCommand.getId());
+            }
         } else {
-            throw new RuntimeException("Accident not Found");
+            throw new UserNotFoundException(userId);
         }
 
     }
 
     @Override
     public void delete(Long accidentId, Long userId) {
-        Accident accident = accidentRepository.findByIdAndUserId(accidentId,userId);
-        if (accident != null) {
-            accidentRepository.deleteById(accidentId);
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            Optional<Accident> optionalAccident = optionalUser.get()
+                    .getAccidents().stream()
+                    .filter(accident -> accident.getId().equals(accidentId))
+                    .findFirst();
+            if (optionalAccident.isPresent()) {
+                accidentRepository.delete(optionalAccident.get());
+            } else {
+                throw new AccidentNotFoundException(accidentId);
+            }
         } else {
-            throw new RuntimeException("Accident not found");
+            throw new UserNotFoundException(userId);
         }
     }
 }
