@@ -54,13 +54,16 @@ class AccidentServiceImplTest {
     @Test
     void getOneByUserId() {
         Accident accident = Accident.builder().id(1L).build();
-        when(accidentRepository.findByIdAndUserId(anyLong(), anyLong())).thenReturn(accident);
+        User user = User.builder().id(1L).accidents(new HashSet<>()).build();
+        user.addAccident(accident);
+
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         AccidentDto accidentDto = accidentService.getOneByUserId(1L, 1L);
 
         assertNotNull(accidentDto);
         assertEquals(1L, accidentDto.getId());
-        verify(accidentRepository, times(1)).findByIdAndUserId(anyLong(), anyLong());
+        verify(userRepository, times(1)).findById(any());
     }
 
     @Test
@@ -111,25 +114,29 @@ class AccidentServiceImplTest {
     void update() {
         Accident accident = Accident.builder().id(1L).title("test").build();
         Accident accidentUpdate = Accident.builder().id(1L).title("test2").build();
-        when(accidentRepository.findByIdAndUserId(anyLong(), anyLong())).thenReturn(accident);
+        User user = User.builder().id(1L).accidents(new HashSet<>()).build();
+        user.addAccident(accident);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(accidentRepository.save(any())).thenReturn(accidentUpdate);
 
         AccidentDto accidentDto = accidentService.update(AccidentCommand.builder().id(1L).title("test2").build() , 1L);
 
         assertNotNull(accidentDto);
-        assertEquals("test2", accidentDto.getTitle());
-        verify(accidentRepository,times(1)).findByIdAndUserId(anyLong(), anyLong());
+        assertEquals("test2", accident.getTitle());
+        verify(userRepository,times(1)).findById(any());
         verify(accidentRepository,times(1)).save(any());
     }
 
     @Test
     void delete() {
         Accident accident = Accident.builder().id(1L).build();
-        when(accidentRepository.findByIdAndUserId(anyLong(), anyLong())).thenReturn(accident);
+        User user = User.builder().id(1L).accidents(new HashSet<>()).build();
+        user.addAccident(accident);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         accidentService.delete(1L, 1L);
 
-        verify(accidentRepository,times(1)).findByIdAndUserId(anyLong(), anyLong());
-        verify(accidentRepository,times(1)).deleteById(anyLong());
+        assertEquals(0, user.getAccidents().size());
+        verify(accidentRepository,times(1)).delete(any());
     }
 }

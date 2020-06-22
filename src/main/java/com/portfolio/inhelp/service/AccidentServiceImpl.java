@@ -103,11 +103,14 @@ public class AccidentServiceImpl implements AccidentService {
     public void delete(Long accidentId, Long userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
-            Optional<Accident> optionalAccident = optionalUser.get()
+            User user = optionalUser.get();
+            Optional<Accident> optionalAccident = user
                     .getAccidents().stream()
                     .filter(accident -> accident.getId().equals(accidentId))
                     .findFirst();
             if (optionalAccident.isPresent()) {
+                Accident accident = optionalAccident.get();
+                user.removeAccident(accident);
                 accidentRepository.delete(optionalAccident.get());
             } else {
                 throw new AccidentNotFoundException(accidentId);
