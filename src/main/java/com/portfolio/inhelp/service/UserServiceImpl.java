@@ -2,6 +2,7 @@ package com.portfolio.inhelp.service;
 
 import com.portfolio.inhelp.command.UserCommand;
 import com.portfolio.inhelp.dto.UserDto;
+import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.UserMapper;
 import com.portfolio.inhelp.model.User;
 import com.portfolio.inhelp.repository.UserRepository;
@@ -22,12 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getOne(Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            return UserMapper.INSTANCE.toDto(optionalUser.get());
-        } else {
-            throw new RuntimeException("User not Found");
-        }
+        return userRepository.findById(id)
+                .map(UserMapper.INSTANCE::toDto)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
@@ -66,7 +64,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userCommand.getEmail());
             return UserMapper.INSTANCE.toDto(userRepository.save(user));
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(userCommand.getId());
         }
     }
 
@@ -76,7 +74,7 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isPresent()) {
             userRepository.delete(optionalUser.get());
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(id);
         }
     }
 }
