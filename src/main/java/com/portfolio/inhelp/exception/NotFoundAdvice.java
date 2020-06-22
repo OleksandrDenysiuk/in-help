@@ -22,4 +22,11 @@ public class NotFoundAdvice {
     public String accidentNotFoundHandler(AccidentNotFoundException e){
         return e.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(CommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String commentNotFoundHandler(CommentNotFoundException e){
+        return e.getMessage();
+    }
 }
