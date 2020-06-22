@@ -2,6 +2,9 @@ package com.portfolio.inhelp.service;
 
 import com.portfolio.inhelp.command.NewsCommand;
 import com.portfolio.inhelp.dto.NewsDto;
+import com.portfolio.inhelp.exception.AccidentNotFoundException;
+import com.portfolio.inhelp.exception.NewsNotFoundException;
+import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.NewsMapper;
 import com.portfolio.inhelp.model.Accident;
 import com.portfolio.inhelp.model.News;
@@ -29,12 +32,9 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public NewsDto getOne(Long newsId) {
-        Optional<News> optionalNews = newsRepository.findById(newsId);
-        if (optionalNews.isPresent()) {
-            return NewsMapper.INSTANCE.toDto(optionalNews.get());
-        } else {
-            throw new RuntimeException("News not found");
-        }
+        return newsRepository.findById(newsId)
+                .map(NewsMapper.INSTANCE::toDto)
+                .orElseThrow(() -> new NewsNotFoundException(newsId));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class NewsServiceImpl implements NewsService {
                     .map(NewsMapper.INSTANCE::toDto)
                     .collect(Collectors.toList());
         } else {
-            throw new RuntimeException("Accident not found");
+            throw new AccidentNotFoundException(accidentId);
         }
     }
 
@@ -72,10 +72,10 @@ public class NewsServiceImpl implements NewsService {
                 accident.addNews(news);
                 return NewsMapper.INSTANCE.toDto(newsRepository.save(news));
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(userId);
         }
     }
 
@@ -98,13 +98,13 @@ public class NewsServiceImpl implements NewsService {
                     news.setContent(newsCommand.getContent());
                     return NewsMapper.INSTANCE.toDto(newsRepository.save(news));
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(newsCommand.getId());
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(userId);
         }
     }
 
@@ -126,13 +126,13 @@ public class NewsServiceImpl implements NewsService {
                     accident.removeNews(news);
                     newsRepository.delete(news);
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(newsId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(userId);
         }
     }
 }
