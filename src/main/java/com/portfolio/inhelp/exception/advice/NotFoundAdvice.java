@@ -1,5 +1,6 @@
-package com.portfolio.inhelp.exception;
+package com.portfolio.inhelp.exception.advice;
 
+import com.portfolio.inhelp.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
