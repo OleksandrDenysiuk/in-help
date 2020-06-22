@@ -2,6 +2,10 @@ package com.portfolio.inhelp.service;
 
 import com.portfolio.inhelp.command.CommentCommand;
 import com.portfolio.inhelp.dto.CommentDto;
+import com.portfolio.inhelp.exception.AccidentNotFoundException;
+import com.portfolio.inhelp.exception.CommentNotFoundException;
+import com.portfolio.inhelp.exception.NewsNotFoundException;
+import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.CommentMapper;
 import com.portfolio.inhelp.model.Accident;
 import com.portfolio.inhelp.model.Comment;
@@ -41,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
                     .map(CommentMapper.INSTANCE::toDto)
                     .collect(Collectors.toList());
         } else {
-            throw new RuntimeException("Accident not found");
+            throw new AccidentNotFoundException(accidentId);
         }
     }
 
@@ -54,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
                     .map(CommentMapper.INSTANCE::toDto)
                     .collect(Collectors.toList());
         } else {
-            throw new RuntimeException("News not found");
+            throw new NewsNotFoundException(newsId);
         }
     }
 
@@ -73,10 +77,10 @@ public class CommentServiceImpl implements CommentService {
                 user.addComment(comment);
                 return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -100,13 +104,13 @@ public class CommentServiceImpl implements CommentService {
                     user.addComment(comment);
                     return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(authorId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -127,16 +131,16 @@ public class CommentServiceImpl implements CommentService {
                         comment.setContent(commentCommand.getContent());
                         return CommentMapper.INSTANCE.toDto(commentRepository.save(comment));
                     } else {
-                        throw new RuntimeException("User not author");
+                        throw new RuntimeException("Not author");
                     }
                 } else {
-                    throw new RuntimeException("Comment not found");
+                    throw new CommentNotFoundException(commentCommand.getId());
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -165,16 +169,16 @@ public class CommentServiceImpl implements CommentService {
                             throw new RuntimeException("User not author");
                         }
                     } else {
-                        throw new RuntimeException("Comment not found");
+                        throw new CommentNotFoundException(commentCommand.getId());
                     }
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(newsId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -200,13 +204,13 @@ public class CommentServiceImpl implements CommentService {
                         throw new RuntimeException("User not author");
                     }
                 } else {
-                    throw new RuntimeException("Comment not found");
+                    throw new CommentNotFoundException(commentId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -236,16 +240,16 @@ public class CommentServiceImpl implements CommentService {
                             throw new RuntimeException("User not author");
                         }
                     } else {
-                        throw new RuntimeException("Comment not found");
+                        throw new CommentNotFoundException(commentId);
                     }
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(newsId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 }
