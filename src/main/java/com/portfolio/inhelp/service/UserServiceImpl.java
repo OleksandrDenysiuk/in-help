@@ -5,9 +5,14 @@ import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.UserMapper;
 import com.portfolio.inhelp.model.User;
+import com.portfolio.inhelp.repository.RoleRepository;
 import com.portfolio.inhelp.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,9 +21,11 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -26,6 +33,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .map(UserMapper.INSTANCE::toDto)
                 .orElseThrow(() -> new UserNotFoundException(id));
+    }
+
+    @Override
+    public UserDto getOneByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(UserMapper.INSTANCE::toDto)
+                .orElse(null);
     }
 
     @Override
@@ -40,13 +54,10 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .id(userCommand.getId())
                 .username(userCommand.getUsername())
-                .password(userCommand.getPassword())
-                .avatar(userCommand.getAvatar())
-                .firstName(userCommand.getFirstName())
-                .lastName(userCommand.getLastName())
-                .phoneNumber(userCommand.getPhoneNumber())
-                .email(userCommand.getEmail())
+                .password(new BCryptPasswordEncoder().encode(userCommand.getPassword()))
+                .roles(new HashSet<>())
                 .build();
+        user.getRoles().add(roleRepository.findByName("USER"));
         return UserMapper.INSTANCE.toDto(userRepository.save(user));
     }
 
@@ -56,12 +67,7 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setUsername(userCommand.getUsername());
-            user.setPassword(userCommand.getPassword());
-            user.setAvatar(userCommand.getAvatar());
-            user.setFirstName(userCommand.getFirstName());
-            user.setLastName(userCommand.getLastName());
-            user.setPhoneNumber(userCommand.getPhoneNumber());
-            user.setEmail(userCommand.getEmail());
+            user.setPassword(new BCryptPasswordEncoder().encode(userCommand.getPassword()));
             return UserMapper.INSTANCE.toDto(userRepository.save(user));
         } else {
             throw new UserNotFoundException(userCommand.getId());
@@ -77,4 +83,17 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException(id);
         }
     }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()){
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }else {
+            User user = optionalUser.get();
+            System.out.println(user.getRoles());
+            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getRoles());
+        }
+    }
+
 }
