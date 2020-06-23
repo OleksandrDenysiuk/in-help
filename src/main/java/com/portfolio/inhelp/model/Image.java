@@ -29,6 +29,10 @@ public class Image {
     @JoinColumn(name = "news_id")
     private News news;
 
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

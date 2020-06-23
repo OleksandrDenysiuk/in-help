@@ -31,7 +31,8 @@ public class User {
 
     private String phoneNumber;
 
-    private String avatar;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Image avatar;
 
     private String role;
 
