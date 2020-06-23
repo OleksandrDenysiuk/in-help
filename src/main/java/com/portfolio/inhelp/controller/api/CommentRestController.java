@@ -2,7 +2,12 @@ package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.command.CommentCommand;
 import com.portfolio.inhelp.dto.CommentDto;
+import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.service.CommentService;
+import com.portfolio.inhelp.service.UserService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +17,11 @@ import java.util.List;
 public class CommentRestController {
 
     private final CommentService commentService;
+    private final UserService userService;
 
-    public CommentRestController(CommentService commentService) {
+    public CommentRestController(CommentService commentService, UserService userService) {
         this.commentService = commentService;
+        this.userService = userService;
     }
 
     @GetMapping("/accidents/{accidentId}/comments")
@@ -31,50 +38,87 @@ public class CommentRestController {
 
     @PostMapping("/accidents/{accidentId}/comments")
     public @ResponseBody
-    CommentDto create(@RequestBody CommentCommand commentCommand,
+    CommentDto create(@AuthenticationPrincipal UserDetails userDetails,
+                      @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId) {
-        return commentService.create(commentCommand, accidentId, 1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            return commentService.create(commentCommand, accidentId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 
     @PostMapping("/accidents/{accidentId}/news/{newsId}/comments")
     public @ResponseBody
-    CommentDto create(@RequestBody CommentCommand commentCommand,
+    CommentDto create(@AuthenticationPrincipal UserDetails userDetails,
+                      @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId,
                       @PathVariable Long newsId) {
-        return commentService.create(commentCommand, accidentId, newsId,1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            return commentService.create(commentCommand, accidentId, newsId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 
     @PutMapping("/accidents/{accidentId}/comments/{commentId}")
     public @ResponseBody
-    CommentDto update(@RequestBody CommentCommand commentCommand,
+    CommentDto update(@AuthenticationPrincipal UserDetails userDetails,
+                      @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId,
                       @PathVariable Long commentId) {
-        commentCommand.setId(commentId);
-        return commentService.update(commentCommand, accidentId, 1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            commentCommand.setId(commentId);
+            return commentService.update(commentCommand, accidentId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 
     @PutMapping("/accidents/{accidentId}/news/{newsId}/comments/{commentId}")
     public @ResponseBody
-    CommentDto update(@RequestBody CommentCommand commentCommand,
+    CommentDto update(@AuthenticationPrincipal UserDetails userDetails,
+                      @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId,
                       @PathVariable Long newsId,
                       @PathVariable Long commentId) {
-        commentCommand.setId(commentId);
-        return commentService.update(commentCommand, accidentId, newsId,1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            commentCommand.setId(commentId);
+            return commentService.update(commentCommand, accidentId, newsId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 
     @DeleteMapping("/accidents/{accidentId}/comments/{commentId}")
     public @ResponseBody
-    void delete(@PathVariable Long accidentId,
+    void delete(@AuthenticationPrincipal UserDetails userDetails,
+                @PathVariable Long accidentId,
                 @PathVariable Long commentId) {
-        commentService.delete(commentId, accidentId, 1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            commentService.delete(commentId, accidentId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 
     @DeleteMapping("/accidents/{accidentId}/news/{newsId}/comments/{commentId}")
     public @ResponseBody
-    void delete(@PathVariable Long accidentId,
-                      @PathVariable Long newsId,
-                      @PathVariable Long commentId) {
-        commentService.delete(commentId, accidentId, newsId,1L);
+    void delete(@AuthenticationPrincipal UserDetails userDetails,
+                @PathVariable Long accidentId,
+                @PathVariable Long newsId,
+                @PathVariable Long commentId) {
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            commentService.delete(commentId, accidentId, newsId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
+
     }
 }

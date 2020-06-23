@@ -2,7 +2,12 @@ package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.command.NewsCommand;
 import com.portfolio.inhelp.dto.NewsDto;
+import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.service.NewsService;
+import com.portfolio.inhelp.service.UserService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,9 +16,11 @@ import java.util.List;
 @RequestMapping("/api")
 public class NewsRestController {
     private final NewsService newsService;
+    private final UserService userService;
 
-    public NewsRestController(NewsService newsService) {
+    public NewsRestController(NewsService newsService, UserService userService) {
         this.newsService = newsService;
+        this.userService = userService;
     }
 
     @GetMapping("/news")
@@ -36,24 +43,43 @@ public class NewsRestController {
 
     @PostMapping("/accidents/{accidentId}/news")
     public @ResponseBody
-    NewsDto create(@RequestBody NewsCommand newsCommand,
+    NewsDto create(@AuthenticationPrincipal UserDetails userDetails,
+                   @RequestBody NewsCommand newsCommand,
                    @PathVariable Long accidentId) {
-        return newsService.create(newsCommand, accidentId, 1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            return newsService.create(newsCommand, accidentId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 
     @PutMapping("/accidents/{accidentId}/news/{newsId}")
     public @ResponseBody
-    NewsDto update(@RequestBody NewsCommand newsCommand,
+    NewsDto update(@AuthenticationPrincipal UserDetails userDetails,
+                   @RequestBody NewsCommand newsCommand,
                    @PathVariable Long accidentId,
                    @PathVariable Long newsId) {
-        newsCommand.setId(newsId);
-        return newsService.update(newsCommand, accidentId, 1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            newsCommand.setId(newsId);
+            return newsService.update(newsCommand, accidentId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
+
     }
 
     @DeleteMapping("/accidents/{accidentId}/news/{newsId}")
     public @ResponseBody
-    void delete(@PathVariable Long accidentId,
+    void delete(@AuthenticationPrincipal UserDetails userDetails,
+                @PathVariable Long accidentId,
                 @PathVariable Long newsId) {
-        newsService.delete(accidentId, newsId, 1L);
+        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        if (user != null) {
+            newsService.delete(accidentId, newsId, user.getId());
+        } else {
+            throw new UsernameNotFoundException(userDetails.getUsername());
+        }
     }
 }
