@@ -1,7 +1,10 @@
 package com.portfolio.inhelp.service;
 
-import com.portfolio.inhelp.command.ImageCommand;
 import com.portfolio.inhelp.dto.ImageDto;
+import com.portfolio.inhelp.exception.AccidentNotFoundException;
+import com.portfolio.inhelp.exception.ImageNotFoundException;
+import com.portfolio.inhelp.exception.NewsNotFoundException;
+import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.ImageMapper;
 import com.portfolio.inhelp.model.Accident;
 import com.portfolio.inhelp.model.Image;
@@ -12,10 +15,17 @@ import com.portfolio.inhelp.repository.ImageRepository;
 import com.portfolio.inhelp.repository.NewsRepository;
 import com.portfolio.inhelp.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 @Service
 public class ImageServiceImpl implements ImageService {
@@ -40,7 +50,7 @@ public class ImageServiceImpl implements ImageService {
                     .map(ImageMapper.INSTANCE::toDto)
                     .collect(Collectors.toList());
         } else {
-            throw new RuntimeException("Accident not found");
+            throw new AccidentNotFoundException(accidentId);
         }
     }
 
@@ -53,12 +63,13 @@ public class ImageServiceImpl implements ImageService {
                     .map(ImageMapper.INSTANCE::toDto)
                     .collect(Collectors.toList());
         } else {
-            throw new RuntimeException("News not found");
+            throw new NewsNotFoundException(newsId);
         }
     }
 
     @Override
-    public ImageDto create(ImageCommand imageCommand, Long accidentId, Long authorId) {
+    @Transactional
+    public ImageDto create(MultipartFile image, Long accidentId, Long authorId) throws IOException {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -67,21 +78,19 @@ public class ImageServiceImpl implements ImageService {
                     .findFirst();
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
-                Image image = Image.builder()
-                        .url(imageCommand.getImage().getName())
-                        .build();
-                accident.addImage(image);
-                return ImageMapper.INSTANCE.toDto(imageRepository.save(image));
+                Image imageToSave = Image.builder().imageBytes(compressBytes(image.getBytes())).build();
+                accident.addImage(imageToSave);
+                return ImageMapper.INSTANCE.toDto(imageRepository.save(imageToSave));
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
     @Override
-    public ImageDto create(ImageCommand imageCommand, Long accidentId, Long newsId, Long authorId) {
+    public ImageDto create(MultipartFile image, Long accidentId, Long newsId, Long authorId) throws IOException {
         Optional<User> optionalUser = userRepository.findById(authorId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -95,19 +104,17 @@ public class ImageServiceImpl implements ImageService {
                         .findFirst();
                 if (optionalNews.isPresent()) {
                     News news = optionalNews.get();
-                    Image image = Image.builder()
-                            .url(imageCommand.getImage().getName())
-                            .build();
-                    news.addImage(image);
-                    return ImageMapper.INSTANCE.toDto(imageRepository.save(image));
+                    Image imageToSave = Image.builder().imageBytes(compressBytes(image.getBytes())).build();
+                    news.addImage(imageToSave);
+                    return ImageMapper.INSTANCE.toDto(imageRepository.save(imageToSave));
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(newsId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -130,13 +137,13 @@ public class ImageServiceImpl implements ImageService {
                     accident.removeImage(image);
                     imageRepository.delete(image);
                 } else {
-                    throw new RuntimeException("Image not found");
+                    throw new ImageNotFoundException(imageId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
     }
 
@@ -163,16 +170,55 @@ public class ImageServiceImpl implements ImageService {
                         news.removeImage(image);
                         imageRepository.delete(image);
                     } else {
-                        throw new RuntimeException("Image not found");
+                        throw new ImageNotFoundException(imageId);
                     }
                 } else {
-                    throw new RuntimeException("News not found");
+                    throw new NewsNotFoundException(newsId);
                 }
             } else {
-                throw new RuntimeException("Accident not found");
+                throw new AccidentNotFoundException(accidentId);
             }
         } else {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException(authorId);
         }
+    }
+
+    // compress the image bytes before storing it in the database
+    private byte[] compressBytes(byte[] data) {
+        Deflater deflater = new Deflater();
+        deflater.setInput(data);
+        deflater.finish();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        try {
+            outputStream.close();
+        } catch (IOException e) {
+        }
+        System.out.println("Compressed Image Byte Size - " + outputStream.toByteArray().length);
+
+        return outputStream.toByteArray();
+    }
+
+    // uncompress the image bytes before returning it to the angular application
+    private byte[] decompressBytes(byte[] data) {
+        Inflater inflater = new Inflater();
+        inflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        try {
+            while (!inflater.finished()) {
+                int count = inflater.inflate(buffer);
+                outputStream.write(buffer, 0, count);
+            }
+            outputStream.close();
+        } catch (IOException ioe) {
+        } catch (DataFormatException e) {
+        }
+        return outputStream.toByteArray();
     }
 }

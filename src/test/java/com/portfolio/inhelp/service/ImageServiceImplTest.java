@@ -1,6 +1,5 @@
 package com.portfolio.inhelp.service;
 
-import com.portfolio.inhelp.command.ImageCommand;
 import com.portfolio.inhelp.dto.ImageDto;
 import com.portfolio.inhelp.model.Accident;
 import com.portfolio.inhelp.model.Image;
@@ -71,16 +70,19 @@ class ImageServiceImplTest {
     }
 
     @Test
-    void createInAccident() {
+    void createInAccident() throws IOException {
         Accident accident = Accident.builder().id(1L).images(new HashSet<>()).build();
         User user = User.builder().id(1L).accidents(new HashSet<>()).build();
         user.addAccident(accident);
         Image image = Image.builder().id(1L).build();
-        ImageCommand imageCommand = new ImageCommand();
-        imageCommand.setImage(new MultipartFile() {
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(imageRepository.save(any())).thenReturn(image);
+
+        ImageDto imageDto = imageService.create(new MultipartFile() {
             @Override
             public String getName() {
-                return "test";
+                return "image";
             }
 
             @Override
@@ -117,30 +119,28 @@ class ImageServiceImplTest {
             public void transferTo(File file) throws IOException, IllegalStateException {
 
             }
-        });
-
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(imageRepository.save(any())).thenReturn(image);
-
-        ImageDto imageDto = imageService.create(imageCommand, 1L, 1L);
+        }, 1L, 1L);
 
         assertNotNull(imageDto);
         assertEquals(1, accident.getImages().size());
     }
 
     @Test
-    void createInNews() {
+    void createInNews() throws IOException {
         User user = User.builder().id(1L).accidents(new HashSet<>()).build();
         Accident accident = Accident.builder().id(1L).news(new HashSet<>()).build();
         News news = News.builder().id(1L).images(new HashSet<>()).build();
         accident.addNews(news);
         user.addAccident(accident);
         Image image = Image.builder().id(1L).build();
-        ImageCommand imageCommand = new ImageCommand();
-        imageCommand.setImage(new MultipartFile() {
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(imageRepository.save(any())).thenReturn(image);
+
+        ImageDto imageDto = imageService.create(new MultipartFile() {
             @Override
             public String getName() {
-                return "test";
+                return "image";
             }
 
             @Override
@@ -177,12 +177,7 @@ class ImageServiceImplTest {
             public void transferTo(File file) throws IOException, IllegalStateException {
 
             }
-        });
-
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(imageRepository.save(any())).thenReturn(image);
-
-        ImageDto imageDto = imageService.create(imageCommand, 1L, 1L, 1L);
+        }, 1L, 1L, 1L);
 
         assertNotNull(imageDto);
         assertEquals(1, news.getImages().size());
@@ -195,8 +190,6 @@ class ImageServiceImplTest {
         Image image = Image.builder().id(1L).build();
         accident.addImage(image);
         user.addAccident(accident);
-        ImageCommand imageCommand = new ImageCommand();
-        imageCommand.setId(1L);
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
@@ -216,8 +209,6 @@ class ImageServiceImplTest {
         news.addImage(image);
         accident.addNews(news);
         user.addAccident(accident);
-        ImageCommand imageCommand = new ImageCommand();
-        imageCommand.setId(1L);
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 

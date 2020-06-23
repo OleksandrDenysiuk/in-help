@@ -1,7 +1,5 @@
 package com.portfolio.inhelp.controller.api;
 
-import com.google.gson.Gson;
-import com.portfolio.inhelp.command.ImageCommand;
 import com.portfolio.inhelp.dto.ImageDto;
 import com.portfolio.inhelp.service.ImageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -18,7 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,12 +39,13 @@ class ImageRestControllerTest {
     void createInAccident() throws Exception {
         ImageDto imageDto = new ImageDto();
         imageDto.setId(1L);
+        byte[] image = new byte[]{1,1};
+        MockMultipartFile multipartFile = new MockMultipartFile("image", image);
 
         when(imageService.create(any(), anyLong(), anyLong())).thenReturn(imageDto);
 
-        mockMvc.perform(post("/api/accidents/1/images")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new ImageCommand())))
+        mockMvc.perform(multipart("/api/accidents/1/images")
+                .file("multipartFile", multipartFile.getBytes()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andReturn();
@@ -58,12 +57,13 @@ class ImageRestControllerTest {
     void createInNews() throws Exception {
         ImageDto imageDto = new ImageDto();
         imageDto.setId(1L);
+        byte[] image = new byte[]{1,1};
+        MockMultipartFile multipartFile = new MockMultipartFile("image", image);
 
         when(imageService.create(any(), anyLong(), anyLong(), anyLong())).thenReturn(imageDto);
 
-        mockMvc.perform(post("/api/accidents/1/news/1/images")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new ImageCommand())))
+        mockMvc.perform(multipart("/api/accidents/1/news/1/images")
+                .file("multipartFile", multipartFile.getBytes()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andReturn();

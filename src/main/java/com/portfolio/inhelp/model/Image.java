@@ -17,9 +17,9 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
-
-    private String url;
+    @Column(name = "image_bytes")
+    @Lob
+    private byte[] imageBytes;
 
     @ManyToOne
     @JoinColumn(name = "accident_id")
