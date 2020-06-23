@@ -27,9 +27,9 @@ public class UserDto {
 
     private String phoneNumber;
 
-    private String avatar;
+    private Long avatarId;
 
-    private String role;
+    private Set<RoleDto> roles;
 
     private Set<AccidentDto> accidents;
 
