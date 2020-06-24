@@ -2,12 +2,9 @@ package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.command.CommentCommand;
 import com.portfolio.inhelp.dto.CommentDto;
-import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.model.AccountDetails;
 import com.portfolio.inhelp.service.CommentService;
-import com.portfolio.inhelp.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +14,9 @@ import java.util.List;
 public class CommentRestController {
 
     private final CommentService commentService;
-    private final UserService userService;
 
-    public CommentRestController(CommentService commentService, UserService userService) {
+    public CommentRestController(CommentService commentService) {
         this.commentService = commentService;
-        this.userService = userService;
     }
 
     @GetMapping("/accidents/{accidentId}/comments")
@@ -41,12 +36,7 @@ public class CommentRestController {
     CommentDto create(@AuthenticationPrincipal AccountDetails accountDetails,
                       @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            return commentService.create(commentCommand, accidentId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        return commentService.create(commentCommand, accidentId, accountDetails.getUserId());
     }
 
     @PostMapping("/accidents/{accidentId}/news/{newsId}/comments")
@@ -55,12 +45,7 @@ public class CommentRestController {
                       @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId,
                       @PathVariable Long newsId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            return commentService.create(commentCommand, accidentId, newsId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        return commentService.create(commentCommand, accidentId, newsId, accountDetails.getUserId());
     }
 
     @PutMapping("/accidents/{accidentId}/comments/{commentId}")
@@ -69,13 +54,8 @@ public class CommentRestController {
                       @RequestBody CommentCommand commentCommand,
                       @PathVariable Long accidentId,
                       @PathVariable Long commentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            commentCommand.setId(commentId);
-            return commentService.update(commentCommand, accidentId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        commentCommand.setId(commentId);
+        return commentService.update(commentCommand, accidentId, accountDetails.getUserId());
     }
 
     @PutMapping("/accidents/{accidentId}/news/{newsId}/comments/{commentId}")
@@ -85,13 +65,8 @@ public class CommentRestController {
                       @PathVariable Long accidentId,
                       @PathVariable Long newsId,
                       @PathVariable Long commentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            commentCommand.setId(commentId);
-            return commentService.update(commentCommand, accidentId, newsId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        commentCommand.setId(commentId);
+        return commentService.update(commentCommand, accidentId, newsId, accountDetails.getUserId());
     }
 
     @DeleteMapping("/accidents/{accidentId}/comments/{commentId}")
@@ -99,12 +74,7 @@ public class CommentRestController {
     void delete(@AuthenticationPrincipal AccountDetails accountDetails,
                 @PathVariable Long accidentId,
                 @PathVariable Long commentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            commentService.delete(commentId, accidentId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        commentService.delete(commentId, accidentId, accountDetails.getUserId());
     }
 
     @DeleteMapping("/accidents/{accidentId}/news/{newsId}/comments/{commentId}")
@@ -113,12 +83,6 @@ public class CommentRestController {
                 @PathVariable Long accidentId,
                 @PathVariable Long newsId,
                 @PathVariable Long commentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            commentService.delete(commentId, accidentId, newsId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
-
+        commentService.delete(commentId, accidentId, newsId, accountDetails.getUserId());
     }
 }

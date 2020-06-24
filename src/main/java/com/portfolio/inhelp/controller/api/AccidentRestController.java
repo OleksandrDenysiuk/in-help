@@ -2,12 +2,9 @@ package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.command.AccidentCommand;
 import com.portfolio.inhelp.dto.AccidentDto;
-import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.model.AccountDetails;
 import com.portfolio.inhelp.service.AccidentService;
-import com.portfolio.inhelp.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +13,9 @@ import java.util.List;
 @RequestMapping("/api")
 public class AccidentRestController {
     private final AccidentService accidentService;
-    private final UserService userService;
 
-    public AccidentRestController(AccidentService accidentService, UserService userService) {
+    public AccidentRestController(AccidentService accidentService) {
         this.accidentService = accidentService;
-        this.userService = userService;
     }
 
     @GetMapping("/accidents")
@@ -52,13 +47,7 @@ public class AccidentRestController {
     public @ResponseBody
     AccidentDto create(@AuthenticationPrincipal AccountDetails userDetails,
                        @RequestBody AccidentCommand accidentCommand) {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
-        if (user != null) {
-            return accidentService.create(accidentCommand, user.getId());
-        } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
-        }
-
+        return accidentService.create(accidentCommand, userDetails.getUserId());
     }
 
     @PutMapping("/accidents/{accidentId}")
@@ -66,24 +55,14 @@ public class AccidentRestController {
     AccidentDto update(@AuthenticationPrincipal AccountDetails userDetails,
                        @PathVariable Long accidentId,
                        AccidentCommand accidentCommand) {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
-        if (user != null) {
-            accidentCommand.setId(accidentId);
-            return accidentService.update(accidentCommand, user.getId());
-        } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
-        }
+        accidentCommand.setId(accidentId);
+        return accidentService.update(accidentCommand, userDetails.getUserId());
     }
 
     @DeleteMapping("/accidents/{accidentId}")
     public @ResponseBody
     void delete(@AuthenticationPrincipal AccountDetails accountDetails,
                 @PathVariable Long accidentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            accidentService.delete(accidentId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        accidentService.delete(accidentId, accountDetails.getUserId());
     }
 }
