@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("Invalid username or password.");
         }else {
             User user = optionalUser.get();
-            return new AccountDetails(user.getUsername(), user.getPassword(), user.getRoles());
+            return new AccountDetails(user.getId(), user.getUsername(), user.getPassword(), user.getRoles());
         }
     }
 

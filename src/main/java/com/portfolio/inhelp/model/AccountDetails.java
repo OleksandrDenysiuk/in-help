@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountDetails implements UserDetails {
-
+    private Long userId;
     private String username;
     private String password;
     Set<Role> roles = new HashSet<>();
