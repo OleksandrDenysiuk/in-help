@@ -5,6 +5,7 @@ import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -30,14 +31,14 @@ public class UserRestController {
 
     @PostMapping("/users")
     public @ResponseBody
-    UserDto create(@RequestBody UserCommand userCommand){
+    UserDto create(@Valid @RequestBody UserCommand userCommand){
         return userService.create(userCommand);
     }
 
     @PutMapping("/users/{userId}")
     public @ResponseBody
     UserDto update(@PathVariable Long userId,
-                   @RequestBody UserCommand userCommand){
+                   @Valid @RequestBody UserCommand userCommand){
         userCommand.setId(userId);
         return userService.update(userCommand);
     }

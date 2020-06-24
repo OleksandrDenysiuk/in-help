@@ -7,6 +7,7 @@ import com.portfolio.inhelp.service.NewsService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,7 @@ public class NewsRestController {
     @PostMapping("/accidents/{accidentId}/news")
     public @ResponseBody
     NewsDto create(@AuthenticationPrincipal AccountDetails accountDetails,
-                   @RequestBody NewsCommand newsCommand,
+                   @Valid @RequestBody NewsCommand newsCommand,
                    @PathVariable Long accidentId) {
         return newsService.create(newsCommand, accidentId, accountDetails.getUserId());
     }
@@ -47,7 +48,7 @@ public class NewsRestController {
     @PutMapping("/accidents/{accidentId}/news/{newsId}")
     public @ResponseBody
     NewsDto update(@AuthenticationPrincipal AccountDetails accountDetails,
-                   @RequestBody NewsCommand newsCommand,
+                   @Valid @RequestBody NewsCommand newsCommand,
                    @PathVariable Long accidentId,
                    @PathVariable Long newsId) {
         newsCommand.setId(newsId);

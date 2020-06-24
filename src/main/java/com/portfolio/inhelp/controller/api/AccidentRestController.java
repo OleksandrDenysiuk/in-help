@@ -7,6 +7,7 @@ import com.portfolio.inhelp.service.AccidentService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -46,7 +47,7 @@ public class AccidentRestController {
     @PostMapping("/accidents")
     public @ResponseBody
     AccidentDto create(@AuthenticationPrincipal AccountDetails userDetails,
-                       @RequestBody AccidentCommand accidentCommand) {
+                       @Valid @RequestBody AccidentCommand accidentCommand) {
         return accidentService.create(accidentCommand, userDetails.getUserId());
     }
 
@@ -54,7 +55,7 @@ public class AccidentRestController {
     public @ResponseBody
     AccidentDto update(@AuthenticationPrincipal AccountDetails userDetails,
                        @PathVariable Long accidentId,
-                       AccidentCommand accidentCommand) {
+                       @Valid @RequestBody AccidentCommand accidentCommand) {
         accidentCommand.setId(accidentId);
         return accidentService.update(accidentCommand, userDetails.getUserId());
     }
