@@ -15,9 +15,10 @@ public class CommentDto {
 
     private String content;
 
-    private Long userId;
+    private Long authorId;
 
     private Long accidentId;
 
     private Long newsId;
+
 }
