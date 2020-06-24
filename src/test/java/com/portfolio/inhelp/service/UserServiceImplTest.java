@@ -2,7 +2,9 @@ package com.portfolio.inhelp.service;
 
 import com.portfolio.inhelp.command.UserCommand;
 import com.portfolio.inhelp.dto.UserDto;
+import com.portfolio.inhelp.model.Role;
 import com.portfolio.inhelp.model.User;
+import com.portfolio.inhelp.repository.RoleRepository;
 import com.portfolio.inhelp.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,8 @@ class UserServiceImplTest {
 
     @Mock
     UserRepository userRepository;
+    @Mock
+    RoleRepository roleRepository;
 
     @InjectMocks
     UserServiceImpl userService;
@@ -58,9 +62,11 @@ class UserServiceImplTest {
     @Test
     void create() {
         User user = User.builder().id(1L).build();
+        Role role = Role.builder().name("USER").build();
         when(userRepository.save(any())).thenReturn(user);
+        when(roleRepository.findByName(anyString())).thenReturn(role);
 
-        UserDto userDto = userService.create(UserCommand.builder().id(1L).build());
+        UserDto userDto = userService.create(UserCommand.builder().id(1L).password("1").build());
 
         assertNotNull(userDto);
         assertEquals(1L, userDto.getId());
@@ -68,15 +74,15 @@ class UserServiceImplTest {
 
     @Test
     void update() {
-        User user = User.builder().id(1L).username("test").build();
-        User userUpdate = User.builder().id(1L).username("test2").build();
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(userRepository.save(any())).thenReturn(userUpdate);
+        User userToUpdate = User.builder().id(1L).username("test").build();
+        User userToSave = User.builder().id(1L).username("test").build();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userToUpdate));
+        when(userRepository.save(any())).thenReturn(userToSave);
 
-        UserDto userDto = userService.update(UserCommand.builder().id(1L).username("test2").build());
+        UserDto userDto = userService.update(UserCommand.builder().id(1L).username("test2").password("1").build());
 
         assertNotNull(userDto);
-        assertEquals("test2", user.getUsername());
+        assertEquals("test2", userToUpdate.getUsername());
         verify(userRepository,times(1)).findById(anyLong());
         verify(userRepository,times(1)).save(any());
     }
