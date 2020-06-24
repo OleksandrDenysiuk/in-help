@@ -11,6 +11,7 @@ import com.portfolio.inhelp.repository.AccidentRepository;
 import com.portfolio.inhelp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,6 +70,9 @@ public class AccidentServiceImpl implements AccidentService {
             Accident accident = Accident.builder()
                     .title(accidentCommand.getTitle())
                     .content(accidentCommand.getContent())
+                    .images(new HashSet<>())
+                    .helpers(new HashSet<>())
+                    .comments(new HashSet<>())
                     .build();
             optionalUser.get().addAccident(accident);
             return AccidentMapper.INSTANCE.toDto(accidentRepository.save(accident));
