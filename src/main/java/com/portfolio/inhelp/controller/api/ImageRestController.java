@@ -2,10 +2,10 @@ package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.dto.ImageDto;
 import com.portfolio.inhelp.dto.UserDto;
+import com.portfolio.inhelp.model.AccountDetails;
 import com.portfolio.inhelp.service.ImageService;
 import com.portfolio.inhelp.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,55 +25,55 @@ public class ImageRestController {
 
     @PostMapping("/accidents/{accidentId}/images")
     public @ResponseBody
-    ImageDto create(@AuthenticationPrincipal UserDetails userDetails,
+    ImageDto create(@AuthenticationPrincipal AccountDetails accountDetails,
                     @RequestParam MultipartFile multipartFile,
                     @PathVariable Long accidentId) throws IOException {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
         if (user != null) {
             return imageService.create(multipartFile, accidentId, user.getId());
         } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
+            throw new UsernameNotFoundException(accountDetails.getUsername());
         }
     }
 
     @PostMapping("/accidents/{accidentId}/news/{newsId}/images")
     public @ResponseBody
-    ImageDto create(@AuthenticationPrincipal UserDetails userDetails,
+    ImageDto create(@AuthenticationPrincipal AccountDetails accountDetails,
                     @RequestParam MultipartFile multipartFile,
                     @PathVariable Long accidentId,
                     @PathVariable Long newsId) throws IOException {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
         if (user != null) {
             return imageService.create(multipartFile, accidentId, newsId, user.getId());
         } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
+            throw new UsernameNotFoundException(accountDetails.getUsername());
         }
     }
 
     @DeleteMapping("/accidents/{accidentId}/images/{imageId}")
     public @ResponseBody
-    void delete(@AuthenticationPrincipal UserDetails userDetails,
+    void delete(@AuthenticationPrincipal AccountDetails accountDetails,
                 @PathVariable Long imageId,
                 @PathVariable Long accidentId) {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
         if (user != null) {
             imageService.delete(imageId, accidentId, user.getId());
         } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
+            throw new UsernameNotFoundException(accountDetails.getUsername());
         }
     }
 
     @DeleteMapping("/accidents/{accidentId}/news/{newsId}/images/{imageId}")
     public @ResponseBody
-    void delete(@AuthenticationPrincipal UserDetails userDetails,
+    void delete(@AuthenticationPrincipal AccountDetails accountDetails,
                 @PathVariable Long imageId,
                 @PathVariable Long accidentId,
                 @PathVariable Long newsId) {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
         if (user != null) {
             imageService.delete(imageId, accidentId, newsId, user.getId());
         } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
+            throw new UsernameNotFoundException(accountDetails.getUsername());
         }
     }
 

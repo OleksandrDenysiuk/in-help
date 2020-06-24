@@ -3,10 +3,10 @@ package com.portfolio.inhelp.controller.api;
 import com.portfolio.inhelp.command.AccidentCommand;
 import com.portfolio.inhelp.dto.AccidentDto;
 import com.portfolio.inhelp.dto.UserDto;
+import com.portfolio.inhelp.model.AccountDetails;
 import com.portfolio.inhelp.service.AccidentService;
 import com.portfolio.inhelp.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,8 +50,8 @@ public class AccidentRestController {
 
     @PostMapping("/accidents")
     public @ResponseBody
-    AccidentDto create(@AuthenticationPrincipal UserDetails userDetails,
-                       AccidentCommand accidentCommand) {
+    AccidentDto create(@AuthenticationPrincipal AccountDetails userDetails,
+                       @RequestBody AccidentCommand accidentCommand) {
         UserDto user = userService.getOneByUsername(userDetails.getUsername());
         if (user != null) {
             return accidentService.create(accidentCommand, user.getId());
@@ -63,7 +63,7 @@ public class AccidentRestController {
 
     @PutMapping("/accidents/{accidentId}")
     public @ResponseBody
-    AccidentDto update(@AuthenticationPrincipal UserDetails userDetails,
+    AccidentDto update(@AuthenticationPrincipal AccountDetails userDetails,
                        @PathVariable Long accidentId,
                        AccidentCommand accidentCommand) {
         UserDto user = userService.getOneByUsername(userDetails.getUsername());
@@ -77,13 +77,13 @@ public class AccidentRestController {
 
     @DeleteMapping("/accidents/{accidentId}")
     public @ResponseBody
-    void delete(@AuthenticationPrincipal UserDetails userDetails,
+    void delete(@AuthenticationPrincipal AccountDetails accountDetails,
                 @PathVariable Long accidentId) {
-        UserDto user = userService.getOneByUsername(userDetails.getUsername());
+        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
         if (user != null) {
             accidentService.delete(accidentId, user.getId());
         } else {
-            throw new UsernameNotFoundException(userDetails.getUsername());
+            throw new UsernameNotFoundException(accountDetails.getUsername());
         }
     }
 }
