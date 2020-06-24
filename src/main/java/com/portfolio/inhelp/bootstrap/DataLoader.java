@@ -1,13 +1,7 @@
 package com.portfolio.inhelp.bootstrap;
 
-import com.portfolio.inhelp.model.Accident;
-import com.portfolio.inhelp.model.Image;
-import com.portfolio.inhelp.model.Role;
-import com.portfolio.inhelp.model.User;
-import com.portfolio.inhelp.repository.AccidentRepository;
-import com.portfolio.inhelp.repository.ImageRepository;
-import com.portfolio.inhelp.repository.RoleRepository;
-import com.portfolio.inhelp.repository.UserRepository;
+import com.portfolio.inhelp.model.*;
+import com.portfolio.inhelp.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,18 +16,25 @@ public class DataLoader implements CommandLineRunner {
     private final AccidentRepository accidentRepository;
     private final RoleRepository roleRepository;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
+    private final NewsRepository newsRepository;
 
-    public DataLoader(UserRepository userRepository, AccidentRepository accidentRepository, RoleRepository roleRepository, ImageRepository imageRepository) {
+    public DataLoader(UserRepository userRepository, AccidentRepository accidentRepository, RoleRepository roleRepository, ImageRepository imageRepository, CommentRepository commentRepository, NewsRepository newsRepository) {
         this.userRepository = userRepository;
         this.accidentRepository = accidentRepository;
         this.roleRepository = roleRepository;
         this.imageRepository = imageRepository;
+        this.commentRepository = commentRepository;
+        this.newsRepository = newsRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        Role role = new Role(1L,"ROLE_USER");
-        roleRepository.save(role);
+        Role roleUser = new Role(1L,"ROLE_USER");
+        roleRepository.save(roleUser);
+        Role roleAdmin = new Role(1L,"ROLE_ADMIN");
+        roleRepository.save(roleAdmin);
+
         Image image = Image.builder().id(1L).imageBytes(new byte[] { (byte)0xe0, 0x4f, (byte)0xd0}).build();
         User user1 = User.builder()
                 .id(1L)
@@ -44,20 +45,62 @@ public class DataLoader implements CommandLineRunner {
                 .email("alex@alex.com")
                 .phoneNumber("+48796363016")
                 .accidents(new HashSet<>())
-                .roles(new HashSet<>()).build();
+                .roles(new HashSet<>())
+                .comments(new HashSet<>()).build();
         image.setUser(user1);
         user1.setAvatar(image);
-        user1.getRoles().add(role);
+        user1.getRoles().add(roleAdmin);
         userRepository.save(user1);
-        User user2 = User.builder().id(2L).accidents(new HashSet<>()).build();
-        userRepository.save(user2);
-        Accident accident1 = Accident.builder().id(1L).build();
-        accidentRepository.save(accident1);
-        Accident accident2 = Accident.builder().id(2L).build();
-        accidentRepository.save(accident2);
+
+        Accident accident1 = Accident.builder()
+                .id(1L)
+                .title("title")
+                .content("content")
+                .comments(new HashSet<>())
+                .images(new HashSet<>()).build();
         user1.addAccident(accident1);
-        userRepository.save(user1);
-        user2.addAccident(accident2);
-        userRepository.save(user2);
+        accidentRepository.save(accident1);
+
+        Comment comment = Comment.builder()
+                .id(1L)
+                .content("content")
+                .build();
+        accident1.addComment(comment);
+        user1.addComment(comment);
+        commentRepository.save(comment);
+
+        News news = News.builder()
+                .id(1L)
+                .title("title")
+                .content("content")
+                .accident(accident1)
+                .comments(new HashSet<>())
+                .images(new HashSet<>())
+                .build();
+
+        newsRepository.save(news);
+
+        Comment comment2 = Comment.builder()
+                .id(2L)
+                .content("content2")
+                .build();
+        news.addComment(comment2);
+        user1.addComment(comment2);
+        commentRepository.save(comment2);
+
+
+        Image image2 = Image.builder().id(2L).imageBytes(new byte[] { (byte)0xe0, 0x4f, (byte)0xd0}).build();
+        Image image3 = Image.builder().id(3L).imageBytes(new byte[] { (byte)0xe0, 0x4f, (byte)0xd0}).build();
+        accident1.addImage(image2);
+        imageRepository.save(image2);
+        accident1.addImage(image3);
+        imageRepository.save(image3);
+
+        Image image4 = Image.builder().id(4L).imageBytes(new byte[] { (byte)0xe0, 0x4f, (byte)0xd0}).build();
+        Image image5 = Image.builder().id(5L).imageBytes(new byte[] { (byte)0xe0, 0x4f, (byte)0xd0}).build();
+        news.addImage(image4);
+        news.addImage(image5);
+        imageRepository.save(image4);
+        imageRepository.save(image5);
     }
 }
