@@ -4,6 +4,7 @@ import com.portfolio.inhelp.command.UserCommand;
 import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.UserMapper;
+import com.portfolio.inhelp.model.AccountDetails;
 import com.portfolio.inhelp.model.User;
 import com.portfolio.inhelp.repository.RoleRepository;
 import com.portfolio.inhelp.repository.UserRepository;
@@ -91,8 +92,7 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("Invalid username or password.");
         }else {
             User user = optionalUser.get();
-            System.out.println(user.getRoles());
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getRoles());
+            return new AccountDetails(user.getUsername(), user.getPassword(), user.getRoles());
         }
     }
 
