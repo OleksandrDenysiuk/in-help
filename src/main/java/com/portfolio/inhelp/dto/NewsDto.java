@@ -19,7 +19,7 @@ public class NewsDto {
 
     private String content;
 
-    private Set<ImageDto> photos;
+    private Set<ImageDto> images;
 
     private Long accidentId;
 
