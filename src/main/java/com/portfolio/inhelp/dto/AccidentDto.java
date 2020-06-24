@@ -24,4 +24,8 @@ public class AccidentDto {
     private Long userId;
 
     private Set<UserDto> helpers;
+
+    private Set<CommentDto> comments;
+
+    private Set<NewsDto> news;
 }
