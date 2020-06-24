@@ -2,12 +2,9 @@ package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.command.NewsCommand;
 import com.portfolio.inhelp.dto.NewsDto;
-import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.model.AccountDetails;
 import com.portfolio.inhelp.service.NewsService;
-import com.portfolio.inhelp.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +13,9 @@ import java.util.List;
 @RequestMapping("/api")
 public class NewsRestController {
     private final NewsService newsService;
-    private final UserService userService;
 
-    public NewsRestController(NewsService newsService, UserService userService) {
+    public NewsRestController(NewsService newsService) {
         this.newsService = newsService;
-        this.userService = userService;
     }
 
     @GetMapping("/news")
@@ -46,12 +41,7 @@ public class NewsRestController {
     NewsDto create(@AuthenticationPrincipal AccountDetails accountDetails,
                    @RequestBody NewsCommand newsCommand,
                    @PathVariable Long accidentId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            return newsService.create(newsCommand, accidentId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        return newsService.create(newsCommand, accidentId, accountDetails.getUserId());
     }
 
     @PutMapping("/accidents/{accidentId}/news/{newsId}")
@@ -60,14 +50,8 @@ public class NewsRestController {
                    @RequestBody NewsCommand newsCommand,
                    @PathVariable Long accidentId,
                    @PathVariable Long newsId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            newsCommand.setId(newsId);
-            return newsService.update(newsCommand, accidentId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
-
+        newsCommand.setId(newsId);
+        return newsService.update(newsCommand, accidentId, accountDetails.getUserId());
     }
 
     @DeleteMapping("/accidents/{accidentId}/news/{newsId}")
@@ -75,11 +59,6 @@ public class NewsRestController {
     void delete(@AuthenticationPrincipal AccountDetails accountDetails,
                 @PathVariable Long accidentId,
                 @PathVariable Long newsId) {
-        UserDto user = userService.getOneByUsername(accountDetails.getUsername());
-        if (user != null) {
-            newsService.delete(accidentId, newsId, user.getId());
-        } else {
-            throw new UsernameNotFoundException(accountDetails.getUsername());
-        }
+        newsService.delete(accidentId, newsId, accountDetails.getUserId());
     }
 }
