@@ -1,6 +1,8 @@
 package com.portfolio.inhelp.controller.api;
 
 import com.portfolio.inhelp.dto.ImageDto;
+import com.portfolio.inhelp.model.AccountDetails;
+import com.portfolio.inhelp.model.Role;
 import com.portfolio.inhelp.service.ImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,9 +10,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -30,9 +39,23 @@ class ImageRestControllerTest {
 
     MockMvc mockMvc;
 
+    HandlerMethodArgumentResolver putPrincipal;
+
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(imageRestController).build();
+        putPrincipal = new HandlerMethodArgumentResolver() {
+            @Override
+            public boolean supportsParameter(MethodParameter parameter) {
+                return parameter.getParameterType().isAssignableFrom(AccountDetails.class);
+            }
+
+            @Override
+            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                          NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+                return new AccountDetails(1L, "u","1", Collections.singleton(new Role(1L,"USER")));
+            }
+        };
+        mockMvc = MockMvcBuilders.standaloneSetup(imageRestController).setCustomArgumentResolvers(putPrincipal).build();
     }
 
     @Test

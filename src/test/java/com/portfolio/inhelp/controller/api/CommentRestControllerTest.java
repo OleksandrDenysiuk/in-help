@@ -3,6 +3,8 @@ package com.portfolio.inhelp.controller.api;
 import com.google.gson.Gson;
 import com.portfolio.inhelp.command.CommentCommand;
 import com.portfolio.inhelp.dto.CommentDto;
+import com.portfolio.inhelp.model.AccountDetails;
+import com.portfolio.inhelp.model.Role;
 import com.portfolio.inhelp.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,11 +12,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -32,9 +40,23 @@ class CommentRestControllerTest {
 
     MockMvc mockMvc;
 
+    HandlerMethodArgumentResolver putPrincipal;
+
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(commentRestController).build();
+        putPrincipal = new HandlerMethodArgumentResolver() {
+            @Override
+            public boolean supportsParameter(MethodParameter parameter) {
+                return parameter.getParameterType().isAssignableFrom(AccountDetails.class);
+            }
+
+            @Override
+            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                          NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+                return new AccountDetails(1L, "u","1", Collections.singleton(new Role(1L,"USER")));
+            }
+        };
+        mockMvc = MockMvcBuilders.standaloneSetup(commentRestController).setCustomArgumentResolvers(putPrincipal).build();
     }
 
     @Test
