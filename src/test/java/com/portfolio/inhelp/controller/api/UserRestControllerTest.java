@@ -75,6 +75,7 @@ class UserRestControllerTest {
     void create() throws Exception {
         UserCommand userCommand = new UserCommand();
         userCommand.setUsername("username");
+        userCommand.setPassword("1");
         Gson gson = new Gson();
         String json = gson.toJson(userCommand);
         UserDto userDto = new UserDto();
@@ -96,6 +97,7 @@ class UserRestControllerTest {
     void update() throws Exception {
         UserCommand userCommand = new UserCommand();
         userCommand.setUsername("username");
+        userCommand.setPassword("1");
         Gson gson = new Gson();
         String json = gson.toJson(userCommand);
         UserDto userDto = new UserDto();

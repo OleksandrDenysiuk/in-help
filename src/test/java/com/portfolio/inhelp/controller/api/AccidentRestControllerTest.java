@@ -137,6 +137,9 @@ class AccidentRestControllerTest {
     void create() throws Exception {
         AccidentDto accidentDto = new AccidentDto();
         accidentDto.setTitle("title");
+        AccidentCommand accidentCommand = new AccidentCommand();
+        accidentCommand.setTitle("title");
+        accidentCommand.setContent("content");
         UserDto userDto = new UserDto();
         userDto.setId(1L);
 
@@ -144,7 +147,7 @@ class AccidentRestControllerTest {
 
         mockMvc.perform(post("/api/accidents")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new AccidentCommand())))
+                .content(new Gson().toJson(accidentCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("title"))
                 .andReturn();
@@ -156,6 +159,9 @@ class AccidentRestControllerTest {
     void update() throws Exception {
         AccidentDto accidentDto = new AccidentDto();
         accidentDto.setTitle("title");
+        AccidentCommand accidentCommand = new AccidentCommand();
+        accidentCommand.setTitle("title");
+        accidentCommand.setContent("content");
         UserDto userDto = new UserDto();
         userDto.setId(1L);
 
@@ -163,7 +169,7 @@ class AccidentRestControllerTest {
 
         mockMvc.perform(put("/api/accidents/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new AccidentCommand())))
+                .content(new Gson().toJson(accidentCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("title"))
                 .andReturn();

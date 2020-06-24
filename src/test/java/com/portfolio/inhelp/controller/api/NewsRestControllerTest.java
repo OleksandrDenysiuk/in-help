@@ -118,12 +118,15 @@ class NewsRestControllerTest {
     void create() throws Exception {
         NewsDto news1 = new NewsDto();
         news1.setId(1L);
+        NewsCommand newsCommand = new NewsCommand();
+        newsCommand.setTitle("title");
+        newsCommand.setContent("content");
 
         when(newsService.create(any(), anyLong(), anyLong())).thenReturn(news1);
 
         mockMvc.perform(post("/api/accidents/1/news")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new NewsCommand())))
+                .content(new Gson().toJson(newsCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"));
 
@@ -134,12 +137,16 @@ class NewsRestControllerTest {
     void update() throws Exception {
         NewsDto news1 = new NewsDto();
         news1.setId(1L);
+        NewsCommand newsCommand = new NewsCommand();
+        newsCommand.setId(1L);
+        newsCommand.setTitle("title");
+        newsCommand.setContent("content");
 
         when(newsService.update(any(), anyLong(), anyLong())).thenReturn(news1);
 
         mockMvc.perform(put("/api/accidents/1/news/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new NewsCommand())))
+                .content(new Gson().toJson(newsCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"));
 

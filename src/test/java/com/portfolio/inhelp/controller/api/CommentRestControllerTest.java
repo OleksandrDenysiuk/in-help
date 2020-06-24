@@ -105,12 +105,14 @@ class CommentRestControllerTest {
     void createInAccident() throws Exception {
         CommentDto comment1 = new CommentDto();
         comment1.setId(1L);
+        CommentCommand commentCommand = new CommentCommand();
+        commentCommand.setContent("content");
 
         when(commentService.create(any(), anyLong(), anyLong())).thenReturn(comment1);
 
         mockMvc.perform(post("/api/accidents/1/comments")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new CommentCommand())))
+                .content(new Gson().toJson(commentCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andReturn();
@@ -122,12 +124,14 @@ class CommentRestControllerTest {
     void createInNews() throws Exception {
         CommentDto comment1 = new CommentDto();
         comment1.setId(1L);
+        CommentCommand commentCommand = new CommentCommand();
+        commentCommand.setContent("content");
 
         when(commentService.create(any(), anyLong(), anyLong(), anyLong())).thenReturn(comment1);
 
         mockMvc.perform(post("/api/accidents/1/news/1/comments")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new CommentCommand())))
+                .content(new Gson().toJson(commentCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andReturn();
@@ -139,12 +143,15 @@ class CommentRestControllerTest {
     void updateInAccident() throws Exception {
         CommentDto comment1 = new CommentDto();
         comment1.setId(1L);
+        CommentCommand commentCommand = new CommentCommand();
+        commentCommand.setId(1L);
+        commentCommand.setContent("content");
 
         when(commentService.update(any(), anyLong(), anyLong())).thenReturn(comment1);
 
         mockMvc.perform(put("/api/accidents/1/comments/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new CommentCommand())))
+                .content(new Gson().toJson(commentCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andReturn();
@@ -156,12 +163,15 @@ class CommentRestControllerTest {
     void updateInNews() throws Exception {
         CommentDto comment1 = new CommentDto();
         comment1.setId(1L);
+        CommentCommand commentCommand = new CommentCommand();
+        commentCommand.setId(1L);
+        commentCommand.setContent("content");
 
         when(commentService.update(any(), anyLong(), anyLong(), anyLong())).thenReturn(comment1);
 
         mockMvc.perform(put("/api/accidents/1/news/1/comments/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(new CommentCommand())))
+                .content(new Gson().toJson(commentCommand)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andReturn();
