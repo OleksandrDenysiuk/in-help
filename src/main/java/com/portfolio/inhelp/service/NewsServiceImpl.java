@@ -14,6 +14,7 @@ import com.portfolio.inhelp.repository.NewsRepository;
 import com.portfolio.inhelp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,8 +68,12 @@ public class NewsServiceImpl implements NewsService {
                     .findFirst();
             if (optionalAccident.isPresent()) {
                 Accident accident = optionalAccident.get();
-                News news = News.builder().title(newsCommand.getTitle())
-                        .content(newsCommand.getContent()).build();
+                News news = News.builder()
+                        .title(newsCommand.getTitle())
+                        .content(newsCommand.getContent())
+                        .images(new HashSet<>())
+                        .comments(new HashSet<>())
+                        .build();
                 accident.addNews(news);
                 return NewsMapper.INSTANCE.toDto(newsRepository.save(news));
             } else {
