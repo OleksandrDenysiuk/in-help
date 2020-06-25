@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserCommand {
+public class UserCreateCommand {
     private Long id;
 
     @NotBlank
