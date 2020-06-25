@@ -1,7 +1,7 @@
 package com.portfolio.inhelp.controller.api;
 
 import com.google.gson.Gson;
-import com.portfolio.inhelp.command.UserCommand;
+import com.portfolio.inhelp.command.UserCreateCommand;
 import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.mapper.UserMapper;
 import com.portfolio.inhelp.model.User;
@@ -73,11 +73,11 @@ class UserRestControllerTest {
 
     @Test
     void create() throws Exception {
-        UserCommand userCommand = new UserCommand();
-        userCommand.setUsername("username");
-        userCommand.setPassword("1");
+        UserCreateCommand userCreateCommand = new UserCreateCommand();
+        userCreateCommand.setUsername("username");
+        userCreateCommand.setPassword("1");
         Gson gson = new Gson();
-        String json = gson.toJson(userCommand);
+        String json = gson.toJson(userCreateCommand);
         UserDto userDto = new UserDto();
         userDto.setUsername("Alex");
 
@@ -95,11 +95,11 @@ class UserRestControllerTest {
 
     @Test
     void update() throws Exception {
-        UserCommand userCommand = new UserCommand();
-        userCommand.setUsername("username");
-        userCommand.setPassword("1");
+        UserCreateCommand userCreateCommand = new UserCreateCommand();
+        userCreateCommand.setUsername("username");
+        userCreateCommand.setPassword("1");
         Gson gson = new Gson();
-        String json = gson.toJson(userCommand);
+        String json = gson.toJson(userCreateCommand);
         UserDto userDto = new UserDto();
         userDto.setUsername("Alex");
 

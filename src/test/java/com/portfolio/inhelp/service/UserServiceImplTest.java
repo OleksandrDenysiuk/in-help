@@ -1,6 +1,7 @@
 package com.portfolio.inhelp.service;
 
-import com.portfolio.inhelp.command.UserCommand;
+import com.portfolio.inhelp.command.UserCreateCommand;
+import com.portfolio.inhelp.command.UserUpdateCommand;
 import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.model.Role;
 import com.portfolio.inhelp.model.User;
@@ -66,7 +67,7 @@ class UserServiceImplTest {
         when(userRepository.save(any())).thenReturn(user);
         when(roleRepository.findByName(anyString())).thenReturn(role);
 
-        UserDto userDto = userService.create(UserCommand.builder().id(1L).password("1").build());
+        UserDto userDto = userService.create(UserCreateCommand.builder().id(1L).password("1").build());
 
         assertNotNull(userDto);
         assertEquals(1L, userDto.getId());
@@ -79,10 +80,18 @@ class UserServiceImplTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(userToUpdate));
         when(userRepository.save(any())).thenReturn(userToSave);
 
-        UserDto userDto = userService.update(UserCommand.builder().id(1L).username("test2").password("1").build());
+        UserDto userDto = userService.update(UserUpdateCommand.builder()
+                .id(1L)
+                .username("username")
+                .password("1")
+                .firstName("firstName")
+                .lastName("lastName")
+                .email("mail@mail.com")
+                .phoneNumber("1111111111")
+                .build());
 
         assertNotNull(userDto);
-        assertEquals("test2", userToUpdate.getUsername());
+        assertEquals("username", userToUpdate.getUsername());
         verify(userRepository,times(1)).findById(anyLong());
         verify(userRepository,times(1)).save(any());
     }
