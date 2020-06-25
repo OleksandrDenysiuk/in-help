@@ -1,6 +1,7 @@
 package com.portfolio.inhelp.controller.api;
 
-import com.portfolio.inhelp.command.UserCommand;
+import com.portfolio.inhelp.command.UserCreateCommand;
+import com.portfolio.inhelp.command.UserUpdateCommand;
 import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -31,16 +32,16 @@ public class UserRestController {
 
     @PostMapping("/users")
     public @ResponseBody
-    UserDto create(@Valid @RequestBody UserCommand userCommand){
-        return userService.create(userCommand);
+    UserDto create(@Valid @RequestBody UserCreateCommand userCreateCommand){
+        return userService.create(userCreateCommand);
     }
 
     @PutMapping("/users/{userId}")
     public @ResponseBody
     UserDto update(@PathVariable Long userId,
-                   @Valid @RequestBody UserCommand userCommand){
-        userCommand.setId(userId);
-        return userService.update(userCommand);
+                   @Valid @RequestBody UserUpdateCommand userUpdateCommand){
+        userUpdateCommand.setId(userId);
+        return userService.update(userUpdateCommand);
     }
 
     @DeleteMapping("/users/{userId}")
