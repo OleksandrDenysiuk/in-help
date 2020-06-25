@@ -1,6 +1,7 @@
 package com.portfolio.inhelp.service;
 
-import com.portfolio.inhelp.command.UserCommand;
+import com.portfolio.inhelp.command.UserCreateCommand;
+import com.portfolio.inhelp.command.UserUpdateCommand;
 import com.portfolio.inhelp.dto.UserDto;
 import com.portfolio.inhelp.exception.UserNotFoundException;
 import com.portfolio.inhelp.mapper.UserMapper;
@@ -51,27 +52,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto create(UserCommand userCommand) {
-        User user = User.builder()
-                .id(userCommand.getId())
-                .username(userCommand.getUsername())
-                .password(new BCryptPasswordEncoder().encode(userCommand.getPassword()))
-                .roles(new HashSet<>())
-                .build();
-        user.getRoles().add(roleRepository.findByName("USER"));
-        return UserMapper.INSTANCE.toDto(userRepository.save(user));
+    public UserDto create(UserCreateCommand userCreateCommand) {
+        Optional<User> optionalUser = userRepository.findByUsername(userCreateCommand.getUsername());
+        if (optionalUser.isEmpty()) {
+            User user = User.builder()
+                    .id(userCreateCommand.getId())
+                    .username(userCreateCommand.getUsername())
+                    .password(new BCryptPasswordEncoder().encode(userCreateCommand.getPassword()))
+                    .roles(new HashSet<>())
+                    .build();
+            user.getRoles().add(roleRepository.findByName("USER"));
+            return UserMapper.INSTANCE.toDto(userRepository.save(user));
+        } else {
+            throw new RuntimeException("User exist");
+        }
     }
 
     @Override
-    public UserDto update(UserCommand userCommand) {
-        Optional<User> optionalUser = userRepository.findById(userCommand.getId());
+    public UserDto update(UserUpdateCommand userUpdateCommand) {
+        Optional<User> optionalUser = userRepository.findById(userUpdateCommand.getId());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setUsername(userCommand.getUsername());
-            user.setPassword(new BCryptPasswordEncoder().encode(userCommand.getPassword()));
+
+            user.setUsername(userUpdateCommand.getUsername());
+
+            if(!userUpdateCommand.getPassword().equals("") || userUpdateCommand.getPassword() != null) {
+                user.setPassword(new BCryptPasswordEncoder().encode(userUpdateCommand.getPassword()));
+            }
+
+            user.setFirstName(userUpdateCommand.getFirstName());
+            user.setLastName(userUpdateCommand.getLastName());
+            user.setEmail(userUpdateCommand.getEmail());
+            user.setPhoneNumber(userUpdateCommand.getPhoneNumber());
+
             return UserMapper.INSTANCE.toDto(userRepository.save(user));
         } else {
-            throw new UserNotFoundException(userCommand.getId());
+            throw new UserNotFoundException(userUpdateCommand.getId());
         }
     }
 
@@ -88,9 +104,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException("Invalid username or password.");
-        }else {
+        } else {
             User user = optionalUser.get();
             return new AccountDetails(user.getId(), user.getUsername(), user.getPassword(), user.getRoles());
         }
