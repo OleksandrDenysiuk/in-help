@@ -13,8 +13,7 @@ public class ImageDto {
 
     private Long id;
 
-    //todo: url to byte[]
-    private String url;
+    private byte[] imageBytes;
 
     private Long accidentId;
 
